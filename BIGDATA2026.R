@@ -310,8 +310,415 @@ effectifs<-table(clean_data7$nomfrancais)
 effectifs <- sort(effectifs) 
 pie(effectifs[], main = "Diagramme en fromage des arbres en fonction de leur type")
 
+# Export des graphiques issus de Fonctionnalites/Fonctionnalite2.R
+output_dir_fonctionnalite2 <- file.path("Fonctionnalites", "figures_fonctionnalite2")
+dir.create(output_dir_fonctionnalite2, recursive = TRUE, showWarnings = FALSE)
+
+normalize_text_fonctionnalite2 <- function(x) {
+  x <- trimws(tolower(as.character(x)))
+  x[is.na(x) | x == "" | x == "ras"] <- "inconnu"
+  x
+}
+
+save_histogram_fonctionnalite2 <- function(values, title, x_label, output_name, top_n = 20) {
+  cleaned_values <- normalize_text_fonctionnalite2(values)
+  counts <- sort(table(cleaned_values), decreasing = TRUE)
+  counts <- counts[names(counts) != "inconnu"]
+  if (length(counts) == 0) {
+    return(invisible(NULL))
+  }
+  counts <- counts[seq_len(min(length(counts), top_n))]
+
+  png(filename = file.path(output_dir_fonctionnalite2, output_name), width = 1400, height = 900, res = 120)
+  par(mar = c(11, 5, 4, 2))
+  barplot(
+    counts,
+    las = 2,
+    col = "#2C7FB8",
+    border = "#1D4E89",
+    main = title,
+    xlab = x_label,
+    ylab = "Quantite d'arbres"
+  )
+  dev.off()
+}
+
+save_boxplot_fonctionnalite2 <- function(y, group, title, x_label, y_label, output_name) {
+  y_num <- as.numeric(y)
+  grp <- normalize_text_fonctionnalite2(group)
+  keep <- is.finite(y_num) & !is.na(grp) & grp != "inconnu"
+  if (sum(keep) == 0) {
+    return(invisible(NULL))
+  }
+  values_by_group <- split(y_num[keep], factor(grp[keep]))
+  values_by_group <- values_by_group[lengths(values_by_group) > 0]
+  if (length(values_by_group) == 0) {
+    return(invisible(NULL))
+  }
+
+  png(filename = file.path(output_dir_fonctionnalite2, output_name), width = 1400, height = 900, res = 120)
+  par(mar = c(10, 5, 4, 2))
+  boxplot(
+    values_by_group,
+    las = 2,
+    col = "#A1D99B",
+    border = "#238B45",
+    main = title,
+    xlab = x_label,
+    ylab = y_label
+  )
+  dev.off()
+}
+
+save_histogram_fonctionnalite2(
+  clean_data7$fk_stadedev,
+  "Repartition des arbres suivant leur stade de developpement",
+  "Stade de developpement",
+  "hist_stade_developpement.png"
+)
+
+quartier_ou_secteur <- ifelse(
+  is.na(clean_data7$clc_quartier) |
+    trimws(clean_data7$clc_quartier) == "" |
+    tolower(trimws(clean_data7$clc_quartier)) == "ras",
+  clean_data7$clc_secteur,
+  clean_data7$clc_quartier
+)
+
+save_histogram_fonctionnalite2(
+  quartier_ou_secteur,
+  "Quantite d'arbres par quartier / secteur",
+  "Quartier / secteur",
+  "hist_quartier_secteur.png"
+)
+
+save_histogram_fonctionnalite2(
+  clean_data7$fk_situation,
+  "Quantite d'arbres selon leur situation",
+  "Situation",
+  "hist_situation.png"
+)
+
+save_boxplot_fonctionnalite2(
+  clean_data7$tronc_diam,
+  clean_data7$fk_situation,
+  "Diametre du tronc par situation",
+  "Situation",
+  "Diametre du tronc",
+  "boxplot_diametre_par_situation.png"
+)
+
+cat("Graphiques de la fonctionnalite 2 exportes dans :", output_dir_fonctionnalite2, "\n")
+
 
 ## III - FONCTIONNALITE 3
+
+output_dir_fonctionnalite3 <- file.path("Fonctionnalites", "cartes_fonctionnalite3")
+dir.create(output_dir_fonctionnalite3, recursive = TRUE, showWarnings = FALSE)
+
+epsg3949_to_lonlat <- function(x, y) {
+  a <- 6378137
+  inv_f <- 298.257222101
+  f <- 1 / inv_f
+  e <- sqrt(2 * f - f^2)
+
+  lat1 <- 48.25 * pi / 180
+  lat2 <- 49.75 * pi / 180
+  lat0 <- 49 * pi / 180
+  lon0 <- 3 * pi / 180
+  x0 <- 1700000
+  y0 <- 8200000
+
+  m <- function(phi) cos(phi) / sqrt(1 - e^2 * sin(phi)^2)
+  t <- function(phi) {
+    tan(pi / 4 - phi / 2) / ((1 - e * sin(phi)) / (1 + e * sin(phi)))^(e / 2)
+  }
+
+  n <- (log(m(lat1)) - log(m(lat2))) / (log(t(lat1)) - log(t(lat2)))
+  f_lambert <- m(lat1) / (n * t(lat1)^n)
+  rho0 <- a * f_lambert * t(lat0)^n
+
+  dx <- x - x0
+  dy <- rho0 - (y - y0)
+  rho <- sqrt(dx^2 + dy^2)
+  theta <- atan2(dx, dy)
+
+  lon <- lon0 + theta / n
+  t_inv <- (rho / (a * f_lambert))^(1 / n)
+  lat <- pi / 2 - 2 * atan(t_inv)
+
+  for (i in 1:8) {
+    lat <- pi / 2 - 2 * atan(t_inv * ((1 - e * sin(lat)) / (1 + e * sin(lat)))^(e / 2))
+  }
+
+  data.frame(
+    lon = lon * 180 / pi,
+    lat = lat * 180 / pi
+  )
+}
+
+lonlat_to_tile <- function(lon, lat, zoom) {
+  n <- 2^zoom
+  lat_rad <- lat * pi / 180
+  data.frame(
+    x = floor((lon + 180) / 360 * n),
+    y = floor((1 - log(tan(lat_rad) + 1 / cos(lat_rad)) / pi) / 2 * n)
+  )
+}
+
+tile_x_to_lon <- function(x, zoom) {
+  x / 2^zoom * 360 - 180
+}
+
+tile_y_to_lat <- function(y, zoom) {
+  atan(sinh(pi * (1 - 2 * y / 2^zoom))) * 180 / pi
+}
+
+get_osm_background <- function(lon_range, lat_range, output_dir, zoom = 13) {
+  lon_padding <- diff(lon_range) * 0.08
+  lat_padding <- diff(lat_range) * 0.08
+  lon_range <- lon_range + c(-lon_padding, lon_padding)
+  lat_range <- lat_range + c(-lat_padding, lat_padding)
+
+  tiles_min <- lonlat_to_tile(lon_range[1], lat_range[2], zoom)
+  tiles_max <- lonlat_to_tile(lon_range[2], lat_range[1], zoom)
+
+  x_tiles <- seq(tiles_min$x, tiles_max$x)
+  y_tiles <- seq(tiles_min$y, tiles_max$y)
+  if (length(x_tiles) * length(y_tiles) > 80) {
+    return(get_osm_background(lon_range, lat_range, output_dir, zoom = zoom - 1))
+  }
+
+  tile_dir <- file.path(output_dir, "osm_tiles")
+  dir.create(tile_dir, recursive = TRUE, showWarnings = FALSE)
+
+  tile_size <- 256
+  background <- array(1, dim = c(length(y_tiles) * tile_size, length(x_tiles) * tile_size, 4))
+
+  for (ix in seq_along(x_tiles)) {
+    for (iy in seq_along(y_tiles)) {
+      tile_file <- file.path(tile_dir, paste0(zoom, "_", x_tiles[ix], "_", y_tiles[iy], ".png"))
+      tile_url <- paste0("https://tile.openstreetmap.org/", zoom, "/", x_tiles[ix], "/", y_tiles[iy], ".png")
+
+      if (!file.exists(tile_file)) {
+        downloaded <- tryCatch({
+          utils::download.file(
+            tile_url,
+            destfile = tile_file,
+            quiet = TRUE,
+            mode = "wb",
+            method = "libcurl",
+            headers = c("User-Agent" = "bigData-ia-web-project/1.0")
+          )
+          TRUE
+        }, error = function(e) FALSE)
+
+        if (!downloaded) {
+          if (file.exists(tile_file)) {
+            unlink(tile_file)
+          }
+          return(NULL)
+        }
+      }
+
+      tile <- tryCatch(png::readPNG(tile_file), error = function(e) NULL)
+      if (is.null(tile)) {
+        return(NULL)
+      }
+
+      row_start <- (iy - 1) * tile_size + 1
+      row_end <- iy * tile_size
+      col_start <- (ix - 1) * tile_size + 1
+      col_end <- ix * tile_size
+      background[row_start:row_end, col_start:col_end, seq_len(dim(tile)[3])] <- tile
+    }
+  }
+
+  list(
+    image = background,
+    xmin = tile_x_to_lon(min(x_tiles), zoom),
+    xmax = tile_x_to_lon(max(x_tiles) + 1, zoom),
+    ymin = tile_y_to_lat(max(y_tiles) + 1, zoom),
+    ymax = tile_y_to_lat(min(y_tiles), zoom)
+  )
+}
+
+save_static_tree_maps <- function(data, output_dir) {
+  map_data <- data %>%
+    filter(is.finite(X), is.finite(Y)) %>%
+    mutate(
+      clc_quartier = ifelse(is.na(clc_quartier) | clc_quartier == "", "quartier inconnu", clc_quartier),
+      remarquable = ifelse(is.na(remarquable) | remarquable == "", "non", remarquable),
+      tronc_diam_plot = ifelse(is.finite(tronc_diam), tronc_diam, median(tronc_diam, na.rm = TRUE))
+    )
+
+  if (nrow(map_data) == 0) {
+    message("Cartes statiques non generees : aucune coordonnee exploitable.")
+    return(invisible(NULL))
+  }
+
+  map_lonlat <- epsg3949_to_lonlat(map_data$X, map_data$Y)
+  map_data$lon <- map_lonlat$lon
+  map_data$lat <- map_lonlat$lat
+
+  quartier_hulls <- map_data %>%
+    group_by(clc_quartier) %>%
+    filter(n() >= 3) %>%
+    slice(chull(X, Y)) %>%
+    ungroup()
+
+  quartier_hulls_geo <- map_data %>%
+    group_by(clc_quartier) %>%
+    filter(n() >= 3) %>%
+    slice(chull(lon, lat)) %>%
+    ungroup()
+
+  quartier_labels <- map_data %>%
+    group_by(clc_quartier) %>%
+    summarise(
+      X = median(X, na.rm = TRUE),
+      Y = median(Y, na.rm = TRUE),
+      nb_arbres = n(),
+      .groups = "drop"
+    )
+
+  quartier_labels_geo <- map_data %>%
+    group_by(clc_quartier) %>%
+    summarise(
+      lon = median(lon, na.rm = TRUE),
+      lat = median(lat, na.rm = TRUE),
+      nb_arbres = n(),
+      .groups = "drop"
+    )
+
+  quartier_summary <- map_data %>%
+    group_by(clc_quartier) %>%
+    summarise(
+      X = mean(X, na.rm = TRUE),
+      Y = mean(Y, na.rm = TRUE),
+      nb_arbres = n(),
+      diametre_moyen = mean(tronc_diam, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  osm_background <- get_osm_background(
+    range(map_data$lon, na.rm = TRUE),
+    range(map_data$lat, na.rm = TRUE),
+    output_dir
+  )
+
+  carte_quartiers <- ggplot() +
+    {
+      if (!is.null(osm_background)) {
+        annotation_raster(
+          osm_background$image,
+          xmin = osm_background$xmin,
+          xmax = osm_background$xmax,
+          ymin = osm_background$ymin,
+          ymax = osm_background$ymax
+        )
+      }
+    } +
+    geom_polygon(
+      data = quartier_hulls_geo,
+      aes(x = lon, y = lat, group = clc_quartier, fill = clc_quartier),
+      color = "grey35",
+      linewidth = 0.45,
+      alpha = 0.14
+    ) +
+    geom_point(
+      data = map_data,
+      aes(x = lon, y = lat, color = clc_quartier, size = tronc_diam_plot),
+      alpha = 0.68
+    ) +
+    geom_point(
+      data = map_data %>% filter(remarquable == "oui"),
+      aes(x = lon, y = lat),
+      shape = 8,
+      color = "red",
+      size = 2.5,
+      alpha = 0.9
+    ) +
+    geom_text(
+      data = quartier_labels_geo,
+      aes(x = lon, y = lat, label = paste0(clc_quartier, "\n", nb_arbres, " arbres")),
+      size = 3,
+      color = "grey15",
+      check_overlap = TRUE
+    ) +
+    coord_equal() +
+    scale_size_continuous(range = c(0.5, 4), guide = "none") +
+    guides(fill = "none", color = guide_legend(title = "Quartier")) +
+    labs(
+      title = "Population d'arbres par quartier",
+      subtitle = ifelse(is.null(osm_background), "Fond cartographique indisponible : affichage local", "Fond cartographique OpenStreetMap"),
+      x = "Longitude",
+      y = "Latitude"
+    ) +
+    theme_minimal() +
+    theme(
+      legend.position = "right",
+      panel.grid.minor = element_blank()
+    )
+
+  ggsave(
+    filename = file.path(output_dir, "carte_arbres_par_quartier.png"),
+    plot = carte_quartiers,
+    width = 14,
+    height = 10,
+    dpi = 150
+  )
+
+  carte_densite <- ggplot() +
+    geom_polygon(
+      data = quartier_hulls,
+      aes(x = X, y = Y, group = clc_quartier),
+      fill = "grey94",
+      color = "grey45",
+      linewidth = 0.3
+    ) +
+    geom_point(
+      data = quartier_summary,
+      aes(x = X, y = Y, size = nb_arbres, fill = nb_arbres),
+      shape = 21,
+      color = "grey20",
+      alpha = 0.82
+    ) +
+    geom_text(
+      data = quartier_summary,
+      aes(x = X, y = Y, label = clc_quartier),
+      size = 3,
+      color = "grey10",
+      vjust = -1.1,
+      check_overlap = TRUE
+    ) +
+    coord_equal() +
+    scale_size_continuous(range = c(4, 18), name = "Nombre d'arbres") +
+    scale_fill_gradient(low = "#B7E4C7", high = "#1B4332", name = "Nombre d'arbres") +
+    labs(
+      title = "Volume d'arbres par quartier",
+      subtitle = "La taille des cercles represente le nombre d'arbres recenses",
+      x = "Coordonnee X",
+      y = "Coordonnee Y"
+    ) +
+    theme_minimal() +
+    theme(panel.grid.minor = element_blank())
+
+  ggsave(
+    filename = file.path(output_dir, "carte_volume_arbres_par_quartier.png"),
+    plot = carte_densite,
+    width = 14,
+    height = 10,
+    dpi = 150
+  )
+
+  message("Cartes statiques generees dans : ", output_dir)
+}
+
+save_static_tree_maps(
+  clean_data7,
+  output_dir_fonctionnalite3
+)
 
 centre_ville = clean_data7[grepl("centre ville", clean_data7$clc_quartier), ]
 
@@ -946,13 +1353,44 @@ ggplot(data = cor_data, aes(x = Var1, y = Var2, fill = Freq)) +
 class_data1<-clean_data7[clean_data7$feuillage == 'feuillu', ]
 class_data2<-clean_data7[clean_data7$feuillage == 'conifère', ]
 
+plot_boxplot_by_group <- function(y, group, main, xlab, ylab) {
+  y_num <- as.numeric(y)
+  group_clean <- as.factor(group)
+  keep <- is.finite(y_num) & !is.na(group_clean)
+  if (sum(keep) == 0 || length(unique(group_clean[keep])) == 0) {
+    message("Boxplot ignore, donnees insuffisantes : ", main)
+    return(invisible(NULL))
+  }
+
+  values_by_group <- split(y_num[keep], group_clean[keep])
+  values_by_group <- values_by_group[lengths(values_by_group) > 0]
+  if (length(values_by_group) == 0) {
+    message("Boxplot ignore, donnees insuffisantes : ", main)
+    return(invisible(NULL))
+  }
+
+  boxplot(values_by_group, main = main, xlab = xlab, ylab = ylab)
+}
+
+safe_kruskal_by_group <- function(y, group, label) {
+  y_num <- as.numeric(y)
+  group_clean <- as.factor(group)
+  keep <- is.finite(y_num) & !is.na(group_clean)
+  if (sum(keep) == 0 || length(unique(group_clean[keep])) < 2) {
+    message("Test de Kruskal-Wallis ignore, donnees insuffisantes : ", label)
+    return(invisible(NULL))
+  }
+
+  kruskal.test(y_num[keep] ~ group_clean[keep])
+}
+
 #Etude de la corrélation de l'âge estimé et du stade de développement
 model_age=(clean_data7$age_estim~clean_data7$fk_stadedev)
 model_age
 par(mfrow=c(2,2))
 
 #Représentation graphique
-boxplot(model_age, main= "Répartition des âges par stade de développement", xlab = "développement", ylab= "âge" )
+plot_boxplot_by_group(clean_data7$age_estim, clean_data7$fk_stadedev, "Répartition des âges par stade de développement", "développement", "âge")
 model_age=lm(model_age)
 summary(model_age)
 ggplot(clean_data7,aes(x =fk_stadedev, y =age_estim)) +
@@ -972,8 +1410,8 @@ ggplot(clean_data7, aes(x =fk_stadedev, y =age_estim))  +
 #Etude de la corrélation del'âge estimé et du stade de développement en fonction d'une espèce
 filtered_data <- clean_data7[clean_data7$nomfrancais == 'querub', ]
 model_age=(filtered_data$age_estim~filtered_data$fk_stadedev)
-boxplot(model_age, main = "En fonction d'une espèce", xlab = "développement", ylab= "âge" )
-kruskal_result <- kruskal.test(model_age, data =filtered_data )
+plot_boxplot_by_group(filtered_data$age_estim, filtered_data$fk_stadedev, "En fonction d'une espèce", "développement", "âge")
+kruskal_result <- safe_kruskal_by_group(filtered_data$age_estim, filtered_data$fk_stadedev, "En fonction d'une espèce")
 kruskal_result
 ggplot(filtered_data, aes(x =filtered_data$fk_stadedev, y =filtered_data$age_estim)) +
   geom_violin(fill = "lightblue") +
@@ -986,8 +1424,8 @@ ggplot(filtered_data, aes(x =fk_stadedev, y =age_estim)) +
 
 #Etude de la corrélation del'âge estimé et du stade de développement en fonction d'une classe d'espèce
 model_age=(class_data1$age_estim~class_data1$fk_stadedev)
-boxplot(model_age, main = "En fonction la classe1 d'espèces", xlab = "développement", ylab= "âge" )
-kruskal_result <- kruskal.test(model_age, data = class_data1)
+plot_boxplot_by_group(class_data1$age_estim, class_data1$fk_stadedev, "En fonction la classe1 d'espèces", "développement", "âge")
+kruskal_result <- safe_kruskal_by_group(class_data1$age_estim, class_data1$fk_stadedev, "En fonction la classe1 d'espèces")
 kruskal_result
 ggplot(class_data1, aes(x =fk_stadedev, y =age_estim)) +
   geom_violin(fill = "lightblue") +
@@ -1000,8 +1438,8 @@ ggplot(class_data1, aes(x =fk_stadedev, y =age_estim)) +
 
 #Etude de la corrélation del'âge estimé et du stade de développement en fonction d'une classe d'espèce
 model_age=(class_data2$age_estim~class_data2$fk_stadedev)
-boxplot(model_age, main = "En fonction de la classe2 d'espèces", xlab = "développement", ylab= "âge" )
-kruskal_result <- kruskal.test(model_age, data = class_data2)
+plot_boxplot_by_group(class_data2$age_estim, class_data2$fk_stadedev, "En fonction de la classe2 d'espèces", "développement", "âge")
+kruskal_result <- safe_kruskal_by_group(class_data2$age_estim, class_data2$fk_stadedev, "En fonction de la classe2 d'espèces")
 kruskal_result
 ggplot(class_data2, aes(x =fk_stadedev, y =age_estim)) +
   geom_violin(fill = "lightblue") +
@@ -1317,6 +1755,6 @@ View(export_IA)
 ## 8. Exporter pour le projet IA
 
 write.csv(export_IA,
-          "export/export_IA.csv",
+          "data/export_IA.csv",
           row.names = FALSE,
           fileEncoding = "UTF-8")
