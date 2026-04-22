@@ -34,6 +34,7 @@ dataset <- dataset %>%
     fk_stadedev = str_squish(str_to_lower(fk_stadedev)),
     fk_arb_etat = str_squish(str_to_lower(fk_arb_etat)),
     feuillage = str_squish(str_to_lower(feuillage)),
+    remarquable = str_squish(str_to_lower(remarquable)),
     clc_quartier = str_squish(str_to_lower(str_replace_all(clc_quartier, "-", " "))),
     clc_secteur = str_squish(str_to_lower(str_replace_all(clc_secteur, "-", " ")))
   )
@@ -103,7 +104,6 @@ plot(dataset$tronc_diam, dataset$haut_tronc)
 plot(dataset$tronc_diam, dataset$age_estim)
 plot(dataset$haut_tronc, dataset$age_estim)
 
-
 ## 3/ Nettoyage des données
 
 ## a) Valeurs manquantes
@@ -140,7 +140,6 @@ data_sans_quartier$clc_quartier <- predicted_quartiers
 
 # Combiner les données 
 clean_data1 <- bind_rows(data_avec_quartier, data_sans_quartier)
-
 
 # Attribution de secteurs au arbres sans secteurs
 #K plus proche voisins (attribué un secteur à tout les arbres): 
@@ -198,7 +197,6 @@ limite_sup_dt <- Q3dt + 1.5 * IQRdt
 
 limite_inf_age <- Q1age - 1.5 * IQRage
 limite_sup_age <- Q3age + 1.5 * IQRage
-
 
 # On supprime les valeurs abberantes
 clean_data3 <- clean_data2[clean_data2$haut_tot >= limite_inf_ht & clean_data2$haut_tot <= limite_sup_ht,]
@@ -331,7 +329,7 @@ points(x = centre_ville$X[centre_ville$remarquable == "non"],
        y = centre_ville$Y[centre_ville$remarquable == "non"],
        pch = 16,
        cex=centre_ville$tronc_diam[centre_ville$remarquable == "non"] / 200,
-       col = "pink",)
+       col = "pink")
 
 # Ajout de points rouges pour les arbres remarquables
 points(x = centre_ville$X[centre_ville$remarquable == "oui"],
@@ -357,7 +355,7 @@ points(x = quartier$X[quartier$remarquable == "non"],
        y = quartier$Y[quartier$remarquable == "non"],
        pch = 16,
        cex=quartier$tronc_diam[quartier$remarquable == "non"] / 200,
-       col = "turquoise",)
+       col = "turquoise")
 
 # Ajout de points rouges pour les arbres remarquables
 points(x = quartier$X[quartier$remarquable == "oui"],
@@ -383,7 +381,7 @@ points(x = quartier$X[quartier$remarquable == "non"],
        y = quartier$Y[quartier$remarquable == "non"],
        pch = 16,
        cex=quartier$tronc_diam[quartier$remarquable == "non"] / 200,
-       col = "orange",)
+       col = "orange")
 
 # Ajout de points rouges pour les arbres remarquables
 points(x = quartier$X[quartier$remarquable == "oui"],
@@ -409,7 +407,7 @@ points(x = quartier$X[quartier$remarquable == "non"],
        y = quartier$Y[quartier$remarquable == "non"],
        pch = 16,
        cex=quartier$tronc_diam[quartier$remarquable == "non"] / 200,
-       col = "darkred",)
+       col = "darkred")
 
 # Ajout de points rouges pour les arbres remarquables
 points(x = quartier$X[quartier$remarquable == "oui"],
@@ -434,7 +432,7 @@ points(x = quartier$X[quartier$remarquable == "non"],
        y = quartier$Y[quartier$remarquable == "non"],
        pch = 16,
        cex=quartier$tronc_diam[quartier$remarquable == "non"] / 200,
-       col = "purple",)
+       col = "purple")
 
 # Ajout de points rouges pour les arbres remarquables
 points(x = quartier$X[quartier$remarquable == "oui"],
@@ -460,7 +458,7 @@ points(x = quartier$X[quartier$remarquable == "non"],
        y = quartier$Y[quartier$remarquable == "non"],
        pch = 16,
        cex=quartier$tronc_diam[quartier$remarquable == "non"] / 200,
-       col = "black",)
+       col = "black")
 
 # Ajout de points rouges pour les arbres remarquables
 points(x = quartier$X[quartier$remarquable == "oui"],
@@ -485,7 +483,7 @@ points(x = quartier$X[quartier$remarquable == "non"],
        y = quartier$Y[quartier$remarquable == "non"],
        pch = 16,
        cex=quartier$tronc_diam[quartier$remarquable == "non"] / 200,
-       col = "darkblue",)
+       col = "darkblue")
 
 # Ajout de points rouges pour les arbres remarquables
 points(x = quartier$X[quartier$remarquable == "oui"],
@@ -511,7 +509,7 @@ points(x = quartier$X[quartier$remarquable == "non"],
        y = quartier$Y[quartier$remarquable == "non"],
        pch = 16,
        cex=quartier$tronc_diam[quartier$remarquable == "non"] / 200,
-       col = "yellow",)
+       col = "yellow")
 
 # Ajout de points rouges pour les arbres remarquables
 points(x = quartier$X[quartier$remarquable == "oui"],
@@ -537,7 +535,7 @@ points(x = quartier$X[quartier$remarquable == "non"],
        y = quartier$Y[quartier$remarquable == "non"],
        pch = 16,
        cex=quartier$tronc_diam[quartier$remarquable == "non"] / 200,
-       col = "blue",)
+       col = "blue")
 
 # Ajout de points rouges pour les arbres remarquables
 points(x = quartier$X[quartier$remarquable == "oui"],
@@ -563,7 +561,7 @@ points(x = quartier$X[quartier$remarquable == "non"],
        y = quartier$Y[quartier$remarquable == "non"],
        pch = 16,
        cex=quartier$tronc_diam[quartier$remarquable == "non"] / 200,
-       col = "green",)
+       col = "green")
 
 # Ajout de points rouges pour les arbres remarquables
 points(x = quartier$X[quartier$remarquable == "oui"],
@@ -589,7 +587,7 @@ points(x = quartier$X[quartier$remarquable == "non"],
        y = quartier$Y[quartier$remarquable == "non"],
        pch = 16,
        cex=quartier$tronc_diam[quartier$remarquable == "non"] / 200,
-       col = "magenta",)
+       col = "magenta")
 
 # Ajout de points rouges pour les arbres remarquables
 points(x = quartier$X[quartier$remarquable == "oui"],
@@ -614,7 +612,7 @@ points(x = clean_data7[grepl("isle", clean_data7$clc_quartier) & clean_data7$rem
        y = clean_data7[grepl("isle", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$Y,
        pch = 16,
        cex=clean_data7[grepl("isle", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$tronc_diam / 500,
-       col = "purple",)
+       col = "purple")
 
 # Ajout de carrés pour les arbres remarquables
 points(x = clean_data7[grepl("isle", clean_data7$clc_quartier) & clean_data7$remarquable == "oui", ]$X,
@@ -628,7 +626,7 @@ points(x = clean_data7[grepl("saint martin", clean_data7$clc_quartier) & clean_d
        y = clean_data7[grepl("saint martin", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$Y,
        pch = 16,
        cex=clean_data7[grepl("saint martin", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$tronc_diam / 500,
-       col = "turquoise",)
+       col = "turquoise")
 
 # Ajout de carrés pour les arbres remarquables
 points(x = clean_data7[grepl("saint martin", clean_data7$clc_quartier) & clean_data7$remarquable == "oui", ]$X,
@@ -642,7 +640,7 @@ points(x = clean_data7[grepl("remicourt", clean_data7$clc_quartier) & clean_data
        y = clean_data7[grepl("remicourt", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$Y,
        pch = 16,
        cex=clean_data7[grepl("remicourt", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$tronc_diam / 500,
-       col = "darkred",)
+       col = "darkred")
 
 # Ajout de carrés pour les arbres remarquables
 points(x = clean_data7[grepl("remicourt", clean_data7$clc_quartier) & clean_data7$remarquable == "oui", ]$X,
@@ -656,7 +654,7 @@ points(x = clean_data7[grepl("vermandois", clean_data7$clc_quartier) & clean_dat
        y = clean_data7[grepl("vermandois", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$Y,
        pch = 16,
        cex=clean_data7[grepl("vermandois", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$tronc_diam / 500,
-       col = "darkblue",)
+       col = "darkblue")
 
 # Ajout de carrés pour les arbres remarquables
 points(x = clean_data7[grepl("vermandois", clean_data7$clc_quartier) & clean_data7$remarquable == "oui", ]$X,
@@ -669,7 +667,7 @@ points(x = clean_data7[grepl("europe", clean_data7$clc_quartier) & clean_data7$r
        y = clean_data7[grepl("europe", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$Y,
        pch = 16,
        cex=clean_data7[grepl("europe", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$tronc_diam / 500,
-       col = "black",)
+       col = "black")
 
 # Ajout de carrés pour les arbres remarquables
 points(x = clean_data7[grepl("europe", clean_data7$clc_quartier) & clean_data7$remarquable == "oui", ]$X,
@@ -682,7 +680,7 @@ points(x = clean_data7[grepl("saint jean", clean_data7$clc_quartier) & clean_dat
        y = clean_data7[grepl("saint jean", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$Y,
        pch = 16,
        cex=clean_data7[grepl("saint jean", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$tronc_diam / 500,
-       col = "yellow",)
+       col = "yellow")
 
 # Ajout de carrés pour les arbres remarquables
 points(x = clean_data7[grepl("saint jean", clean_data7$clc_quartier) & clean_data7$remarquable == "oui", ]$X,
@@ -695,7 +693,7 @@ points(x = clean_data7[grepl("centre ville", clean_data7$clc_quartier) & clean_d
        y = clean_data7[grepl("centre ville", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$Y,
        pch = 16,
        cex=clean_data7[grepl("centre ville", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$tronc_diam / 500,
-       col = "pink",)
+       col = "pink")
 
 # Ajout de carrés pour les arbres remarquables
 points(x = clean_data7[grepl("centre ville", clean_data7$clc_quartier) & clean_data7$remarquable == "oui", ]$X,
@@ -708,7 +706,7 @@ points(x = clean_data7[grepl("omissy", clean_data7$clc_quartier) & clean_data7$r
        y = clean_data7[grepl("omissy", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$Y,
        pch = 16,
        cex=clean_data7[grepl("omissy", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$tronc_diam / 500,
-       col = "blue",)
+       col = "blue")
 
 # Ajout de carrés pour les arbres remarquables
 points(x = clean_data7[grepl("omissy", clean_data7$clc_quartier) & clean_data7$remarquable == "oui", ]$X,
@@ -721,7 +719,7 @@ points(x = clean_data7[grepl("neuville", clean_data7$clc_quartier) & clean_data7
        y = clean_data7[grepl("neuville", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$Y,
        pch = 16,
        cex=clean_data7[grepl("neuville", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$tronc_diam / 500,
-       col = "green",)
+       col = "green")
 
 # Ajout de carrés pour les arbres remarquables
 points(x = clean_data7[grepl("neuville", clean_data7$clc_quartier) & clean_data7$remarquable == "oui", ]$X,
@@ -734,7 +732,7 @@ points(x = clean_data7[grepl("harly", clean_data7$clc_quartier) & clean_data7$re
        y = clean_data7[grepl("harly", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$Y,
        pch = 16,
        cex=clean_data7[grepl("harly", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$tronc_diam / 500,
-       col = "magenta",)
+       col = "magenta")
 
 # Ajout de carrés pour les arbres remarquables
 points(x = clean_data7[grepl("harly", clean_data7$clc_quartier) & clean_data7$remarquable == "oui", ]$X,
@@ -747,7 +745,7 @@ points(x = clean_data7[grepl("rouvroy", clean_data7$clc_quartier) & clean_data7$
        y = clean_data7[grepl("rouvroy", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$Y,
        pch = 16,
        cex=clean_data7[grepl("rouvroy", clean_data7$clc_quartier) & clean_data7$remarquable == "non", ]$tronc_diam / 500,
-       col = "orange",)
+       col = "orange")
 
 # Ajout de carrés pour les arbres remarquables
 points(x = clean_data7[grepl("rouvroy", clean_data7$clc_quartier) & clean_data7$remarquable == "oui", ]$X,
@@ -776,7 +774,7 @@ corrplot(cor_matrix, method = "square")
 #les couleurs pour les schémas
 colors <- c("lightblue", "lightgreen", "pink", "yellow")
 
-#Etude de la corréaltion entre les quartiers et l'état des arbres
+#Etude de la corrélation entre les quartiers et l'état des arbres
 cor_quartier1=table(clean_data7$clc_quartier, clean_data7$fk_arb_etat)
 cor_quartier1
 chisq.test(cor_quartier1)
@@ -796,7 +794,6 @@ cor_quartier3=table(clean_data7$clc_quartier,clean_data7$fk_pied)
 cor_quartier3
 chisq.test(cor_quartier3)
 mosaicplot(cor_quartier3,las=2 ,color=colors)
-
 
 #Etude de la corrélation entre les quartiers et la situation des arbres
 cor_quartier4=table(clean_data7$clc_quartier, clean_data7$fk_situation)
@@ -848,7 +845,7 @@ ggplot(clean_data7, aes(x = haut_tot, y = haut_tronc)) +
        y = "hauteur du tronc") +
   theme_minimal()
 
-#Etude de la corrélation entre la hauteur total et le diamèrtre du tronc de l'arbre
+#Etude de la corrélation entre la hauteur total et le diamètre du tronc de l'arbre
 cor_tronc1=cor(clean_data7$haut_tot, clean_data7$tronc_diam) 
 cor_tronc1
 
@@ -898,7 +895,7 @@ ggplot(clean_data7, aes(x =haut_tronc, y =age_estim)) +
   geom_point(color = 'green', size = 3) +   # Points bleus de taille 3
   geom_smooth(method="lm" ,color = 'red', se = FALSE) +  
   # Ligne de régression rouge
-  geom_smooth(color = 'blue', se = FALSE)
+  geom_smooth(color = 'blue', se = FALSE)+
 labs(title = "Corrélation entre la hauteur du tronc et l'âge estimé",
      x = "hauteur du tronc",
      y = "âge estimé") +
@@ -911,12 +908,11 @@ ggplot(clean_data7, aes(x = tronc_diam,  y =  age_estim)) +
   geom_point(color = 'green', size = 3) +   # Points bleus de taille 3
   geom_smooth(method="lm" ,color = 'red', se = FALSE) +  
   # Ligne de régression rouge
-  geom_smooth(color = 'blue', se = FALSE)
+  geom_smooth(color = 'blue', se = FALSE)+
 labs(title = "Corrélation entre le diamètre du tronc et l'âge estimé",
      x = "diamètre du tronc",
      y = "âge estimé") +
   theme_minimal()
-
 
 # Créer une matrice de corrélation
 cor_matrix <- cor(clean_data7 %>% select(where(is.numeric)), use = "complete.obs")
@@ -947,10 +943,10 @@ ggplot(data = cor_data, aes(x = Var1, y = Var2, fill = Freq)) +
 
 # Création des classes
 
-class_data1<-clean_data7[clean_data7$feuillage == 'Feuillu', ]
-class_data2<-clean_data7[clean_data7$feuillage == 'Conifère', ]
+class_data1<-clean_data7[clean_data7$feuillage == 'feuillu', ]
+class_data2<-clean_data7[clean_data7$feuillage == 'conifère', ]
 
-#Etude de la corrélation del'âge estimé et du stade de développement
+#Etude de la corrélation de l'âge estimé et du stade de développement
 model_age=(clean_data7$age_estim~clean_data7$fk_stadedev)
 model_age
 par(mfrow=c(2,2))
@@ -974,7 +970,7 @@ ggplot(clean_data7, aes(x =fk_stadedev, y =age_estim))  +
   theme_minimal()
 
 #Etude de la corrélation del'âge estimé et du stade de développement en fonction d'une espèce
-filtered_data <- clean_data7[clean_data7$nomfrancais == 'QUERUB', ]
+filtered_data <- clean_data7[clean_data7$nomfrancais == 'querub', ]
 model_age=(filtered_data$age_estim~filtered_data$fk_stadedev)
 boxplot(model_age, main = "En fonction d'une espèce", xlab = "développement", ylab= "âge" )
 kruskal_result <- kruskal.test(model_age, data =filtered_data )
@@ -1211,50 +1207,31 @@ test$probabilite_abattage <- predictions
 
 View(test)
 
-# Etude de zone afin de planter de nouveau arbres
-centre_ville = clean_data7[grepl("centre ville", clean_data7$clc_quartier), ]
-con_centre_ville = length(centre_ville) / ((max(centre_ville$X)-min(centre_ville$X))*(max(centre_ville$Y)-min(centre_ville$Y)))
-con_centre_ville
+# Etude de zone afin de planter de nouveaux arbres
+# Calcul de la densité approximative d'arbres par quartier
 
-omissy = clean_data7[grepl("omissy", clean_data7$clc_quartier), ]
-con_omissy = length(omissy) / ((max(omissy$X)-min(omissy$X))*(max(omissy$Y)-min(omissy$Y)))
-con_omissy
+densite_quartier <- clean_data7 %>%
+  group_by(clc_quartier) %>%
+  summarise(
+    nb_arbres = n(),
+    xmin = min(X, na.rm = TRUE),
+    xmax = max(X, na.rm = TRUE),
+    ymin = min(Y, na.rm = TRUE),
+    ymax = max(Y, na.rm = TRUE),
+    surface_approx = (xmax - xmin) * (ymax - ymin),
+    densite = nb_arbres / surface_approx,
+    .groups = "drop"
+  ) %>%
+  arrange(densite)
 
-neuville = clean_data7[grepl("neuville", clean_data7$clc_quartier), ]
-con_neuville = length(neuville) / ((max(neuville$X)-min(neuville$X))*(max(neuville$Y)-min(neuville$Y)))
-con_neuville
+View(densite_quartier)
 
-harly = clean_data7[grepl("harly", clean_data7$clc_quartier), ]
-con_harly = length(harly) / ((max(harly$X)-min(harly$X))*(max(harly$Y)-min(harly$Y)))
-con_harly
+quartiers_a_planter <- densite_quartier %>%
+  arrange(densite) %>%
+  select(clc_quartier, nb_arbres, surface_approx, densite)
 
-rouvroy = clean_data7[grepl("rouvroy", clean_data7$clc_quartier), ]
-con_rouvroy = length(rouvroy) / ((max(rouvroy$X)-min(rouvroy$X))*(max(rouvroy$Y)-min(rouvroy$Y)))
-con_rouvroy
+View(quartiers_a_planter)
 
-isle = clean_data7[grepl("isle", clean_data7$clc_quartier), ]
-con_isle = length(isle) / ((max(isle$X)-min(isle$X))*(max(isle$Y)-min(isle$Y)))
-con_isle
-
-st_martin = clean_data7[grepl("saint martin", clean_data7$clc_quartier), ]
-con_st_martin = length(st_martin) / ((max(st_martin$X)-min(st_martin$X))*(max(st_martin$Y)-min(st_martin$Y)))
-con_st_martin
-
-remicourt = clean_data7[grepl("remicourt", clean_data7$clc_quartier), ]
-con_remicourt = length(remicourt) / ((max(remicourt$X)-min(remicourt$X))*(max(remicourt$Y)-min(remicourt$Y)))
-con_remicourt
-
-vermandois = clean_data7[grepl("vermandois", clean_data7$clc_quartier), ]
-con_vermandois = length(vermandois) / ((max(vermandois$X)-min(vermandois$X))*(max(vermandois$Y)-min(vermandois$Y)))
-con_vermandois
-
-europe = clean_data7[grepl("europe", clean_data7$clc_quartier), ]
-con_europe = length(europe) / ((max(europe$X)-min(europe$X))*(max(europe$Y)-min(europe$Y)))
-con_europe
-
-st_jean = clean_data7[grepl("saint jean", clean_data7$clc_quartier), ]
-con_st_jean = length(st_jean) / ((max(st_jean$X)-min(st_jean$X))*(max(st_jean$Y)-min(st_jean$Y)))
-con_st_jean
 
 ## VI- FONCTIONNALITE 6
 
@@ -1288,43 +1265,11 @@ colonnes_a_supprimer <- c(
 export_IA <- export_IA %>%
   select(-any_of(colonnes_a_supprimer))
 
-
-## 2. Compléter le feuillage inconnu à partir de l'espèce
-
-export_IA$feuillage <- ifelse(
-  is.na(export_IA$feuillage) | export_IA$feuillage == "" | export_IA$feuillage == "RAS",
-  NA,
-  export_IA$feuillage
-)
-
-ref_feuillage <- export_IA %>%
-  filter(!is.na(nomfrancais), !is.na(feuillage)) %>%
-  group_by(nomfrancais, feuillage) %>%
-  summarise(nb = n(), .groups = "drop") %>%
-  group_by(nomfrancais) %>%
-  slice_max(order_by = nb, n = 1, with_ties = FALSE) %>%
-  ungroup() %>%
-  select(nomfrancais, feuillage_ref = feuillage)
-
-export_IA <- export_IA %>%
-  left_join(ref_feuillage, by = "nomfrancais") %>%
-  mutate(
-    feuillage = ifelse(is.na(feuillage), feuillage_ref, feuillage)
-  ) %>%
-  select(-feuillage_ref)
-
-export_IA$feuillage <- ifelse(
-  is.na(export_IA$feuillage),
-  "inconnu",
-  export_IA$feuillage
-)
-
-
 ## 3. Remplacer les NA restants dans les variables qualitatives utiles
 
 export_IA <- export_IA %>%
   mutate(
-    remarquable = ifelse(is.na(remarquable), "NON", remarquable),
+    remarquable = ifelse(is.na(remarquable), "non", remarquable),
     fk_stadedev = ifelse(is.na(fk_stadedev), "RAS", fk_stadedev),
     fk_pied = ifelse(is.na(fk_pied), "RAS", fk_pied),
     fk_situation = ifelse(is.na(fk_situation), "RAS", fk_situation),
