@@ -35,6 +35,7 @@ dataset <- dataset %>%
     fk_arb_etat = str_squish(str_to_lower(fk_arb_etat)),
     feuillage = str_squish(str_to_lower(feuillage)),
     remarquable = str_squish(str_to_lower(remarquable)),
+    nomfrancais = str_squish(str_to_lower(nomfrancais)),
     clc_quartier = str_squish(str_to_lower(str_replace_all(clc_quartier, "-", " "))),
     clc_secteur = str_squish(str_to_lower(str_replace_all(clc_secteur, "-", " ")))
   )
@@ -220,7 +221,7 @@ colSums(is.na(clean_data7))
 ## 1. Compléter le feuillage inconnu à partir de l'espèce
 
 clean_data7$feuillage <- ifelse(
-  is.na(clean_data7$feuillage) | clean_data7$feuillage == "" | clean_data7$feuillage == "RAS",
+  is.na(clean_data7$feuillage) | clean_data7$feuillage == "" | clean_data7$feuillage == "ras",
   NA,
   clean_data7$feuillage
 )
@@ -1407,7 +1408,7 @@ ggplot(clean_data7, aes(x =fk_stadedev, y =age_estim))  +
   labs(title = "Distribution des âges par état de développemnt",  x = "développement", y = "âge")  +
   theme_minimal()
 
-#Etude de la corrélation del'âge estimé et du stade de développement en fonction d'une espèce
+#Etude de la corrélation de l'âge estimé et du stade de développement en fonction d'une espèce
 filtered_data <- clean_data7[clean_data7$nomfrancais == 'querub', ]
 model_age=(filtered_data$age_estim~filtered_data$fk_stadedev)
 plot_boxplot_by_group(filtered_data$age_estim, filtered_data$fk_stadedev, "En fonction d'une espèce", "développement", "âge")
@@ -1708,14 +1709,13 @@ export_IA <- export_IA %>%
 export_IA <- export_IA %>%
   mutate(
     remarquable = ifelse(is.na(remarquable), "non", remarquable),
-    fk_stadedev = ifelse(is.na(fk_stadedev), "RAS", fk_stadedev),
-    fk_pied = ifelse(is.na(fk_pied), "RAS", fk_pied),
-    fk_situation = ifelse(is.na(fk_situation), "RAS", fk_situation),
-    nomfrancais = ifelse(is.na(nomfrancais), "RAS", nomfrancais),
-    feuillage = ifelse(is.na(feuillage), "RAS", feuillage),
+    fk_stadedev = ifelse(is.na(fk_stadedev), "ras", fk_stadedev),
+    fk_pied = ifelse(is.na(fk_pied), "ras", fk_pied),
+    fk_situation = ifelse(is.na(fk_situation), "ras", fk_situation),
+    nomfrancais = ifelse(is.na(nomfrancais), "ras", nomfrancais),
+    feuillage = ifelse(is.na(feuillage), "ras", feuillage),
     dte_plantation = ifelse(is.na(dte_plantation), "date inconnu", dte_plantation)
   )
-
 
 ## 5. Convertir les colonnes Oui/Non et Vrai/Faux en 1/0
 
