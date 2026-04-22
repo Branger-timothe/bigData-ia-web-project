@@ -16,7 +16,7 @@ library(png)
 library(corrplot)
 
 # Charger le fichier CSV
-dataset <- read_csv("C:/Users/cotte/OneDrive - yncréa/Bureau/PROJET 2026/BIGDATA/Patrimoine_Arboré_data.csv")
+dataset <- readr::read_csv("data/Patrimoine_Arboré_data.csv")
 View(dataset)
 
 # Afficher un résumé statistique
@@ -1372,6 +1372,6 @@ View(export_IA)
 ## 8. Exporter pour le projet IA
 
 write.csv(export_IA,
-          "C:/Users/cotte/OneDrive - yncréa/Bureau/PROJET 2026/BIGDATA/export_IA.csv",
+          "export/export_IA.csv",
           row.names = FALSE,
           fileEncoding = "UTF-8")
