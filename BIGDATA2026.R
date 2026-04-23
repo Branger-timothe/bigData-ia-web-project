@@ -1163,18 +1163,6 @@ points(x = clean_data7[grepl("rouvroy", clean_data7$clc_quartier) & clean_data7$
 
 ## IV - FONCTIONNALITE 4
 
-# Matrice de corrélation de Pearson
-# Sélectionner uniquement les colonnes numériques
-numeric_columns <- sapply(clean_data7, is.numeric)
-numeric_data <- clean_data7[, numeric_columns]
-
-# Calculer la matrice de corrélation de Pearson
-cor_matrix <- cor(numeric_data, use = "complete.obs")
-
-# Visualiser la matrice de corrélation
-corrplot(cor_matrix, method = "square")
-
-
 #Analyse des variables qualitatives
 
 #les couleurs pour les schémas
@@ -1187,7 +1175,6 @@ chisq.test(cor_quartier1)
 # Les résultats du test du chi2 montre que les valeurs sont fortement liée ( X très grand) et que la probabilité est bien inférieure à 0.005. Donc on peut supooser qu'il y a corréaltion
 
 mosaicplot(cor_quartier1, las=2,  color = colors,  main="Lien entre les quartiers et l'etat des arbres")
-
 
 #Etude de la corrélation entre les quartiers et le stade de développement des arbres
 cor_quartier2=table(clean_data7$clc_quartier, clean_data7$fk_stadedev)
@@ -1208,7 +1195,6 @@ chisq.test(cor_quartier4)
 # Les résultats du test du chi2 montre que les valeurs sont fortement liée ( X très grand) et que la probabilité est bien inférieure à 0.005. Donc on peut supooser qu'il y a corréaltion
 mosaicplot(cor_quartier4, las=3,  color = colors,main="lien entre les quartiers et la situation des arbres")# le graphique est difficil à aborder
 
-
 #Etude de la corrélation entre les feuillages et les quatiers
 cor_feuillage1=table(clean_data7$clc_quartier,clean_data7$feuillage )
 cor_feuillage1
@@ -1220,20 +1206,6 @@ cor_feuillage2=table(clean_data7$fk_stadedev,clean_data7$feuillage )
 cor_feuillage2
 chisq.test(cor_feuillage2)
 mosaicplot(cor_feuillage2, las=3,  color = colors, main="lien entre le feuillage et le stade de développement")
-
-
-#Etude de la corrélation entre les feuillages et l'etat des arbres
-cor_feuillage3=table(clean_data7$fk_arb_etat,clean_data7$feuillage )
-cor_feuillage3
-chisq.test(cor_feuillage3) # le test de corrélation montre qu'il n'y a  pratiquement pas de corrélation.
-
-
-#Etude de la corrélation entre les feuillages et le stade de développement  
-cor_feuillage4=table(clean_data7$feuillage,clean_data7$nomfrancais )
-cor_feuillage4
-chisq.test(cor_feuillage4)
-mosaicplot(cor_feuillage4, las=3,  color = colors, main="lien entre le feuillage et le nom des espèces")
-
 
 #Quantitatives
 #Etude de la corrélation entre la hauteur total et la hauteur du tronc
@@ -1302,9 +1274,9 @@ ggplot(clean_data7, aes(x =haut_tronc, y =age_estim)) +
   geom_smooth(method="lm" ,color = 'red', se = FALSE) +  
   # Ligne de régression rouge
   geom_smooth(color = 'blue', se = FALSE)+
-labs(title = "Corrélation entre la hauteur du tronc et l'âge estimé",
-     x = "hauteur du tronc",
-     y = "âge estimé") +
+  labs(title = "Corrélation entre la hauteur du tronc et l'âge estimé",
+       x = "hauteur du tronc",
+       y = "âge estimé") +
   theme_minimal()
 
 #Etude de la correlation entre le diamètre du tronc et l'âge estimé
@@ -1315,9 +1287,9 @@ ggplot(clean_data7, aes(x = tronc_diam,  y =  age_estim)) +
   geom_smooth(method="lm" ,color = 'red', se = FALSE) +  
   # Ligne de régression rouge
   geom_smooth(color = 'blue', se = FALSE)+
-labs(title = "Corrélation entre le diamètre du tronc et l'âge estimé",
-     x = "diamètre du tronc",
-     y = "âge estimé") +
+  labs(title = "Corrélation entre le diamètre du tronc et l'âge estimé",
+       x = "diamètre du tronc",
+       y = "âge estimé") +
   theme_minimal()
 
 # Créer une matrice de corrélation
@@ -1345,29 +1317,30 @@ ggplot(data = cor_data, aes(x = Var1, y = Var2, fill = Freq)) +
   coord_fixed()
 
 
-#quantitatives/qualitatives
+# quantitatives / qualitatives
 
 # Création des classes
-
-class_data1<-clean_data7[clean_data7$feuillage == 'feuillu', ]
-class_data2<-clean_data7[clean_data7$feuillage == 'conifère', ]
+class_data1 <- clean_data7[clean_data7$feuillage == "feuillu", ]
+class_data2 <- clean_data7[clean_data7$feuillage == "conifère", ]
 
 plot_boxplot_by_group <- function(y, group, main, xlab, ylab) {
   y_num <- as.numeric(y)
   group_clean <- as.factor(group)
   keep <- is.finite(y_num) & !is.na(group_clean)
+  
   if (sum(keep) == 0 || length(unique(group_clean[keep])) == 0) {
-    message("Boxplot ignore, donnees insuffisantes : ", main)
+    message("Boxplot ignoré, données insuffisantes : ", main)
     return(invisible(NULL))
   }
-
+  
   values_by_group <- split(y_num[keep], group_clean[keep])
   values_by_group <- values_by_group[lengths(values_by_group) > 0]
+  
   if (length(values_by_group) == 0) {
-    message("Boxplot ignore, donnees insuffisantes : ", main)
+    message("Boxplot ignoré, données insuffisantes : ", main)
     return(invisible(NULL))
   }
-
+  
   boxplot(values_by_group, main = main, xlab = xlab, ylab = ylab)
 }
 
@@ -1375,78 +1348,111 @@ safe_kruskal_by_group <- function(y, group, label) {
   y_num <- as.numeric(y)
   group_clean <- as.factor(group)
   keep <- is.finite(y_num) & !is.na(group_clean)
+  
   if (sum(keep) == 0 || length(unique(group_clean[keep])) < 2) {
-    message("Test de Kruskal-Wallis ignore, donnees insuffisantes : ", label)
+    message("Test de Kruskal-Wallis ignoré, données insuffisantes : ", label)
     return(invisible(NULL))
   }
-
+  
   kruskal.test(y_num[keep] ~ group_clean[keep])
 }
 
-#Etude de la corrélation de l'âge estimé et du stade de développement
-model_age=(clean_data7$age_estim~clean_data7$fk_stadedev)
-model_age
-par(mfrow=c(2,2))
+## 1. Analyse globale : âge estimé selon le stade de développement
 
-#Représentation graphique
-plot_boxplot_by_group(clean_data7$age_estim, clean_data7$fk_stadedev, "Répartition des âges par stade de développement", "développement", "âge")
-model_age=lm(model_age)
-summary(model_age)
-ggplot(clean_data7,aes(x =fk_stadedev, y =age_estim)) +
-  geom_violin(fill = "lightblue") +
-  labs(title = "Répartition des âges par stade de développement", x = "développement", y = "âge") +
-  theme_minimal()
-ggplot(clean_data7, aes(x =fk_stadedev, y =age_estim)) +
-  geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
-  labs(title = "Distribution des revenus par genre",  x = "développement", y = "âge") +
-  theme_minimal()
-ggplot(clean_data7, aes(x =fk_stadedev, y =age_estim))  +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
-  labs(title = "Distribution des âges par état de développemnt",  x = "développement", y = "âge")  +
-  theme_minimal()
+plot_boxplot_by_group(
+  clean_data7$age_estim,
+  clean_data7$fk_stadedev,
+  "Répartition des âges par stade de développement",
+  "Stade de développement",
+  "Âge"
+)
 
-#Etude de la corrélation de l'âge estimé et du stade de développement en fonction d'une espèce
-filtered_data <- clean_data7[clean_data7$nomfrancais == 'querub', ]
-model_age=(filtered_data$age_estim~filtered_data$fk_stadedev)
-plot_boxplot_by_group(filtered_data$age_estim, filtered_data$fk_stadedev, "En fonction d'une espèce", "développement", "âge")
-kruskal_result <- safe_kruskal_by_group(filtered_data$age_estim, filtered_data$fk_stadedev, "En fonction d'une espèce")
-kruskal_result
-ggplot(filtered_data, aes(x =filtered_data$fk_stadedev, y =filtered_data$age_estim)) +
+kruskal_global <- safe_kruskal_by_group(
+  clean_data7$age_estim,
+  clean_data7$fk_stadedev,
+  "Global"
+)
+kruskal_global
+
+ggplot(clean_data7, aes(x = fk_stadedev, y = age_estim)) +
   geom_violin(fill = "lightblue") +
-  labs(title = "Répartition des revenus par genre", x = "développement", y = "âge") +
-  theme_minimal()
-ggplot(filtered_data, aes(x =fk_stadedev, y =age_estim)) +
-  geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
-  labs(title = "Distribution des âges par état de développemnt",  x = "développement", y = "âge")  +
+  labs(
+    title = "Répartition des âges par stade de développement",
+    x = "Stade de développement",
+    y = "Âge"
+  ) +
   theme_minimal()
 
-#Etude de la corrélation del'âge estimé et du stade de développement en fonction d'une classe d'espèce
-model_age=(class_data1$age_estim~class_data1$fk_stadedev)
-plot_boxplot_by_group(class_data1$age_estim, class_data1$fk_stadedev, "En fonction la classe1 d'espèces", "développement", "âge")
-kruskal_result <- safe_kruskal_by_group(class_data1$age_estim, class_data1$fk_stadedev, "En fonction la classe1 d'espèces")
-kruskal_result
-ggplot(class_data1, aes(x =fk_stadedev, y =age_estim)) +
+## 2. Analyse pour une espèce précise : querub
+
+filtered_data <- clean_data7[clean_data7$nomfrancais == "querub", ]
+
+plot_boxplot_by_group(
+  filtered_data$age_estim,
+  filtered_data$fk_stadedev,
+  "Âge selon le stade de développement pour l'espèce querub",
+  "Stade de développement",
+  "Âge"
+)
+
+kruskal_querub <- safe_kruskal_by_group(
+  filtered_data$age_estim,
+  filtered_data$fk_stadedev,
+  "Espèce querub"
+)
+kruskal_querub
+
+## 3. Analyse pour la classe 1 d'espèces : feuillus
+
+plot_boxplot_by_group(
+  class_data1$age_estim,
+  class_data1$fk_stadedev,
+  "Âge selon le stade de développement pour les feuillus",
+  "Stade de développement",
+  "Âge"
+)
+
+kruskal_feuillus <- safe_kruskal_by_group(
+  class_data1$age_estim,
+  class_data1$fk_stadedev,
+  "Classe feuillus"
+)
+kruskal_feuillus
+
+ggplot(class_data1, aes(x = fk_stadedev, y = age_estim)) +
   geom_violin(fill = "lightblue") +
-  labs(title = "En fonction de la classe1 d'espèces", x = "stade de développement", y = "âge") +
-  theme_minimal()
-ggplot(class_data1, aes(x =fk_stadedev, y =age_estim)) +
-  geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
-  labs(title = "Distribution du stade de développement par âge",  x = "développement", y = "âge") +
+  labs(
+    title = "Répartition des âges pour les feuillus",
+    x = "Stade de développement",
+    y = "Âge"
+  ) +
   theme_minimal()
 
-#Etude de la corrélation del'âge estimé et du stade de développement en fonction d'une classe d'espèce
-model_age=(class_data2$age_estim~class_data2$fk_stadedev)
-plot_boxplot_by_group(class_data2$age_estim, class_data2$fk_stadedev, "En fonction de la classe2 d'espèces", "développement", "âge")
-kruskal_result <- safe_kruskal_by_group(class_data2$age_estim, class_data2$fk_stadedev, "En fonction de la classe2 d'espèces")
-kruskal_result
-ggplot(class_data2, aes(x =fk_stadedev, y =age_estim)) +
+
+## 4. Analyse pour la classe 2 d'espèces : conifères
+
+plot_boxplot_by_group(
+  class_data2$age_estim,
+  class_data2$fk_stadedev,
+  "Âge selon le stade de développement pour les conifères",
+  "Stade de développement",
+  "Âge"
+)
+
+kruskal_coniferes <- safe_kruskal_by_group(
+  class_data2$age_estim,
+  class_data2$fk_stadedev,
+  "Classe conifères"
+)
+kruskal_coniferes
+
+ggplot(class_data2, aes(x = fk_stadedev, y = age_estim)) +
   geom_violin(fill = "lightblue") +
-  labs(title = "Répartition des ages par stade de développement", x = "stade de développement", y = "âge") +
-  theme_minimal()
-ggplot(class_data2, aes(x =fk_stadedev, y =age_estim)) +
-  geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
-  labs(title = "Distribution des revenus par genre",  x = "développement", y = "âge") +
+  labs(
+    title = "Répartition des âges pour les conifères",
+    x = "Stade de développement",
+    y = "Âge"
+  ) +
   theme_minimal()
 
 
