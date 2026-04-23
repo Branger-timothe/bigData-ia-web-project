@@ -1,8 +1,6 @@
 ## Projet Big Data
 
-
 ## I- FONCTIONNALITE 1
-
 
 ## 1/ Description du jeu de données
 
