@@ -5,7 +5,7 @@ declare(strict_types=1);
 function navigationItems(): array
 {
     return [
-        ['href' => '/', 'label' => 'Accueil', 'key' => 'home'],
+        ['href' => '/index.php', 'label' => 'Accueil', 'key' => 'home'],
         ['href' => '/ajouter-un-arbre/', 'label' => 'Ajouter un arbre', 'key' => 'add-tree'],
         ['href' => '/visualisation/', 'label' => 'Visualisation', 'key' => 'visualisation'],
         ['href' => '/prediction-clusters/', 'label' => 'Prediction clusters', 'key' => 'clusters'],
@@ -32,7 +32,6 @@ function renderPageStart(string $title, string $activePage): void
                 <div class="site-brand">
                     <p class="site-brand__eyebrow">Projet ISEN 2026</p>
                     <h1 class="site-brand__title">Gestion du patrimoine arbore</h1>
-                    <p class="site-brand__subtitle">Interface web en HTML, CSS, JavaScript et PHP</p>
                 </div>
                 <nav class="site-nav" aria-label="Navigation principale">
                     <ul class="site-nav__list">
@@ -60,8 +59,7 @@ function renderPageEnd(): void
         </main>
         <footer class="site-footer">
             <div class="site-footer__inner">
-                <p>Projet Big Data / IA / Web - Gestion du patrimoine arbore</p>
-                <p>Front natif HTML / CSS / JavaScript, back PHP et modeles Python</p>
+                <p>Timothé Branger , Clément Cottel, Axel Brazeau</p>
             </div>
         </footer>
     </div>
