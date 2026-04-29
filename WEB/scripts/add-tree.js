@@ -45,17 +45,29 @@ async function loadReferences() {
 
 async function handleSubmit(event) {
   event.preventDefault();
+
   hideAlert(alertBox);
+
+  const formData = new FormData(form);
+
+  const total = Number(formData.get("hauteur_total"));
+  const tronc = Number(formData.get("hauteur_tronc"));
+
+  // 🔥 VALIDATION ICI
+  if (tronc > total) {
+    showAlert(alertBox, "Erreur : la hauteur du tronc ne peut pas être supérieure à la hauteur totale.", "error");
+    return;
+  }
+
   submitButton.disabled = true;
   submitButton.textContent = "Enregistrement...";
 
-  const formData = new FormData(form);
   const payload = {
     espece_id: Number(formData.get("espece_id")),
     etat_id: Number(formData.get("etat_id")),
     diametre_tronc: Number(formData.get("diametre_tronc")),
-    hauteur_total: Number(formData.get("hauteur_total")),
-    hauteur_tronc: Number(formData.get("hauteur_tronc")),
+    hauteur_total: total,
+    hauteur_tronc: tronc,
     latitude: Number(formData.get("latitude")),
     longitude: Number(formData.get("longitude")),
     stade_developpement: String(formData.get("stade_developpement") || ""),
@@ -66,13 +78,16 @@ async function handleSubmit(event) {
 
   try {
     const data = await createTree(payload);
-    showAlert(alertBox, `Arbre ${data.id_arbre} enregistre avec succes. Redirection vers la visualisation...`, "success");
+    showAlert(alertBox, `Arbre ${data.id_arbre} enregistre avec succes.`, "success");
+
     form.reset();
+
     window.setTimeout(() => {
       window.location.href = "/visualisation/";
     }, 1200);
+
   } catch (error) {
-    showAlert(alertBox, error instanceof Error ? error.message : "Impossible d'enregistrer l'arbre.");
+    showAlert(alertBox, error instanceof Error ? error.message : "Erreur serveur");
   } finally {
     submitButton.disabled = false;
     submitButton.textContent = "Enregistrer l'arbre";
