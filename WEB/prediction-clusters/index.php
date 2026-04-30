@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/includes/layout.php';
 
+$basePath = appBasePath();
+
 renderPageStart('Prediction clusters', 'clusters');
 ?>
 <section class="page-heading">
@@ -30,6 +32,6 @@ renderPageStart('Prediction clusters', 'clusters');
 </section>
 
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script type="module" src="/scripts/prediction-clusters.js"></script>
+<script type="module" src="<?= htmlspecialchars($basePath . '/scripts/prediction-clusters.js', ENT_QUOTES, 'UTF-8') ?>"></script>
 <?php
 renderPageEnd();

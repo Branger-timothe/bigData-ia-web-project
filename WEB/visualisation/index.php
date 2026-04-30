@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/includes/layout.php';
 
+$basePath = appBasePath();
+
 renderPageStart('Visualisation', 'visualisation');
 ?>
 <section class="page-heading">
@@ -13,8 +15,8 @@ renderPageStart('Visualisation', 'visualisation');
         <p>Consulte les arbres stockes dans la base et affiche leur position sur une carte Plotly.</p>
     </div>
     <div class="page-heading__actions">
-        <a class="button button--secondary" href="/prediction-clusters/">Predire les clusters</a>
-        <a class="button button--secondary" href="/prediction-age/">Predire l'age</a>
+        <a class="button button--secondary" href="<?= htmlspecialchars($basePath . '/prediction-clusters/', ENT_QUOTES, 'UTF-8') ?>">Predire les clusters</a>
+        <a class="button button--secondary" href="<?= htmlspecialchars($basePath . '/prediction-age/', ENT_QUOTES, 'UTF-8') ?>">Predire l'age</a>
     </div>
 </section>
 
@@ -68,6 +70,6 @@ renderPageStart('Visualisation', 'visualisation');
 </section>
 
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script type="module" src="/scripts/visualisation.js"></script>
+<script type="module" src="<?= htmlspecialchars($basePath . '/scripts/visualisation.js', ENT_QUOTES, 'UTF-8') ?>"></script>
 <?php
 renderPageEnd();

@@ -2,20 +2,28 @@
 
 declare(strict_types=1);
 
+function appBasePath(): string
+{
+    return '/bigData-ia-web-project/WEB';
+}
+
 function navigationItems(): array
 {
+    $basePath = appBasePath();
+
     return [
-        ['href' => '/index.php', 'label' => 'Accueil', 'key' => 'home'],
-        ['href' => '/ajouter-un-arbre/', 'label' => 'Ajouter un arbre', 'key' => 'add-tree'],
-        ['href' => '/visualisation/', 'label' => 'Visualisation', 'key' => 'visualisation'],
-        ['href' => '/prediction-clusters/', 'label' => 'Prediction clusters', 'key' => 'clusters'],
-        ['href' => '/prediction-age/', 'label' => 'Prediction age', 'key' => 'age'],
+        ['href' => $basePath . '/index.php', 'label' => 'Accueil', 'key' => 'home'],
+        ['href' => $basePath . '/ajouter-un-arbre/', 'label' => 'Ajouter un arbre', 'key' => 'add-tree'],
+        ['href' => $basePath . '/visualisation/', 'label' => 'Visualisation', 'key' => 'visualisation'],
+        ['href' => $basePath . '/prediction-clusters/', 'label' => 'Prediction clusters', 'key' => 'clusters'],
+        ['href' => $basePath . '/prediction-age/', 'label' => 'Prediction age', 'key' => 'age'],
     ];
 }
 
 function renderPageStart(string $title, string $activePage): void
 {
     $fullTitle = $title . ' | Gestion du patrimoine arbore';
+    $basePath = appBasePath();
     ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -23,7 +31,7 @@ function renderPageStart(string $title, string $activePage): void
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($fullTitle, ENT_QUOTES, 'UTF-8') ?></title>
-    <link rel="stylesheet" href="/styles/site.css">
+    <link rel="stylesheet" href="<?= htmlspecialchars($basePath . '/styles/site.css', ENT_QUOTES, 'UTF-8') ?>">
 </head>
 <body>
     <div class="site-shell">

@@ -1,5 +1,6 @@
 import { createTree, fetchReferences, hideAlert, showAlert } from "./api.js";
 
+const APP_BASE = `${window.location.origin}/bigData-ia-web-project/WEB`;
 const form = document.getElementById("add-tree-form");
 const alertBox = document.getElementById("add-tree-alert");
 const submitButton = document.getElementById("add-tree-submit");
@@ -83,7 +84,7 @@ async function handleSubmit(event) {
     form.reset();
 
     window.setTimeout(() => {
-      window.location.href = "/visualisation/";
+      window.location.href = `${APP_BASE}/visualisation/`;
     }, 1200);
 
   } catch (error) {

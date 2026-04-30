@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/includes/layout.php';
 
+$basePath = appBasePath();
+
 renderPageStart('Ajouter un arbre', 'add-tree');
 ?>
 <section class="page-heading">
@@ -83,11 +85,11 @@ renderPageStart('Ajouter un arbre', 'add-tree');
 
         <div class="form-actions">
             <button id="add-tree-submit" class="button button--primary" type="submit">Enregistrer l'arbre</button>
-            <a class="button button--ghost" href="/visualisation/">Voir les arbres</a>
+            <a class="button button--ghost" href="<?= htmlspecialchars($basePath . '/visualisation/', ENT_QUOTES, 'UTF-8') ?>">Voir les arbres</a>
         </div>
     </form>
 </section>
 
-<script type="module" src="/scripts/add-tree.js"></script>
+<script type="module" src="<?= htmlspecialchars($basePath . '/scripts/add-tree.js', ENT_QUOTES, 'UTF-8') ?>"></script>
 <?php
 renderPageEnd();

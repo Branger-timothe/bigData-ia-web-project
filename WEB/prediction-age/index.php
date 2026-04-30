@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/includes/layout.php';
 
+$basePath = appBasePath();
+
 renderPageStart('Prediction age', 'age');
 ?>
 <section class="page-heading">
@@ -48,6 +50,6 @@ renderPageStart('Prediction age', 'age');
     <p class="result-panel__label" id="age-result-label"></p>
 </section>
 
-<script type="module" src="/scripts/prediction-age.js"></script>
+<script type="module" src="<?= htmlspecialchars($basePath . '/scripts/prediction-age.js', ENT_QUOTES, 'UTF-8') ?>"></script>
 <?php
 renderPageEnd();

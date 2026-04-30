@@ -1,4 +1,5 @@
-const API_BASE = `${window.location.origin}/api`;
+const APP_BASE = `${window.location.origin}/bigData-ia-web-project/WEB`;
+const API_BASE = `${APP_BASE}/api`;
 
 async function parseApiResponse(response) {
   let payload;

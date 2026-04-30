@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/layout.php';
 
+$basePath = appBasePath();
+
 renderPageStart('Accueil', 'home');
 ?>
 <section class="hero-card">
@@ -16,8 +18,8 @@ renderPageStart('Accueil', 'home');
             scripts Python du projet IA.
         </p>
         <div class="hero-card__actions">
-            <a class="button button--primary" href="/ajouter-un-arbre/">Ajouter un arbre</a>
-            <a class="button button--secondary" href="/visualisation/">Voir la visualisation</a>
+            <a class="button button--primary" href="<?= htmlspecialchars($basePath . '/ajouter-un-arbre/', ENT_QUOTES, 'UTF-8') ?>">Ajouter un arbre</a>
+            <a class="button button--secondary" href="<?= htmlspecialchars($basePath . '/visualisation/', ENT_QUOTES, 'UTF-8') ?>">Voir la visualisation</a>
         </div>
     </div>
     <div class="hero-card__visual">
