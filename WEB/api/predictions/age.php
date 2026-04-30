@@ -25,7 +25,7 @@ function getAgeModelPath(): string
 function resolvePythonExecutable(): string
 {
     $configuredBinary = getenv('PYTHON_BIN');
-    if (is_string($configuredBinary) && trim($configuredBinary) !== '' && is_file(trim($configuredBinary))) {
+    if (is_string($configuredBinary) && trim($configuredBinary) !== '') {
         return trim($configuredBinary);
     }
 
@@ -35,17 +35,35 @@ function resolvePythonExecutable(): string
         'C:\\Python312\\python.exe',
         'C:\\Python311\\python.exe',
         'C:\\Python310\\python.exe',
+        'python3',
         'python',
         'py',
     ];
 
     foreach ($candidates as $candidate) {
-        if (is_file($candidate)) {
+        if (is_file($candidate) || commandExists($candidate)) {
             return $candidate;
         }
     }
 
-    return 'C:\\laragon\\bin\\python\\python-3.10\\python.exe';
+    return 'python3';
+}
+
+function commandExists(string $command): bool
+{
+    if ($command === '') {
+        return false;
+    }
+
+    $lookupCommand = strtoupper(substr(PHP_OS_FAMILY, 0, 3)) === 'WIN'
+        ? 'where ' . escapeshellarg($command) . ' 2>NUL'
+        : 'command -v ' . escapeshellarg($command) . ' 2>/dev/null';
+
+    $output = [];
+    $exitCode = 1;
+    exec($lookupCommand, $output, $exitCode);
+
+    return $exitCode === 0;
 }
 
 function normalizeProcessOutput(string $value): string
@@ -65,6 +83,37 @@ function normalizeProcessOutput(string $value): string
     }
 
     return preg_replace('/[^\x20-\x7E]/', '', $value) ?? '';
+}
+
+function runPythonCommand(array $commandParts, ?string $workingDirectory = null): string
+{
+    $command = implode(' ', $commandParts);
+    $descriptors = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w'],
+    ];
+
+    $process = proc_open($command, $descriptors, $pipes, $workingDirectory);
+
+    if (!is_resource($process)) {
+        throw new RuntimeException('Impossible de demarrer le processus Python.');
+    }
+
+    fclose($pipes[0]);
+    $stdout = stream_get_contents($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+
+    $exitCode = proc_close($process);
+    $output = normalizeProcessOutput(trim((string) $stdout . PHP_EOL . (string) $stderr));
+
+    if ($exitCode !== 0) {
+        throw new RuntimeException($output !== '' ? $output : 'Execution Python echouee.');
+    }
+
+    return $output;
 }
 
 function predictAgeFromTree(array $tree): float
@@ -97,21 +146,7 @@ function predictAgeFromTree(array $tree): float
         '--modele',
         escapeshellarg($modelPath),
     ];
-
-    $command = implode(' ', $commandParts) . ' 2>&1';
-    $outputLines = [];
-    $exitCode = 0;
-
-    exec($command, $outputLines, $exitCode);
-
-    if ($exitCode !== 0) {
-        $processOutput = normalizeProcessOutput(trim(implode(PHP_EOL, $outputLines)));
-        throw new RuntimeException(
-            "Echec de l'appel au modele d'age : " . $processOutput
-        );
-    }
-
-    $output = normalizeProcessOutput(trim(implode(PHP_EOL, $outputLines)));
+    $output = runPythonCommand($commandParts);
 
     if (!preg_match('/([-+]?\d+(?:[.,]\d+)?)/u', $output, $matches)) {
         throw new RuntimeException("Sortie du modele d'age illisible : " . $output);
