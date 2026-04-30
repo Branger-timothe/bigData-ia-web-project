@@ -41,10 +41,14 @@ function getClusterModelWorkingDirectory(): string
 
 function resolvePythonExecutable(): string
 {
+    $pythonBinary = '/var/www/a_brazea/bigData-ia-web-project/.venv/bin/python';
+
     $configuredBinary = getenv('PYTHON_BIN');
     if (is_string($configuredBinary) && trim($configuredBinary) !== '') {
         return trim($configuredBinary);
     }
+
+    return $pythonBinary;
 
     $candidates = [
         'C:\\laragon\\bin\\python\\python-3.10\\python.exe',
