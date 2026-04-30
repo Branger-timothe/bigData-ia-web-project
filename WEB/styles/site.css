@@ -59,7 +59,8 @@ img {
 .site-header__inner,
 .site-main,
 .site-footer__inner {
-  width: min(1180px, calc(100% - 2rem));
+  width: calc(100% - 2rem);
+  max-width: 1180px;
   margin: 0 auto;
 }
 
@@ -151,6 +152,7 @@ img {
 .hero-card,
 .panel,
 .result-panel {
+  min-width: 0;
   border: 1px solid rgba(31, 42, 29, 0.08);
   border-radius: 1.5rem;
   background: var(--surface-strong);
@@ -250,9 +252,15 @@ img {
 .panel__header,
 .page-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.panel__header > *,
+.page-heading > * {
+  min-width: 0;
 }
 
 .page-heading h2,
@@ -339,7 +347,23 @@ img {
 }
 
 .table-wrap {
+  max-width: 100%;
   overflow-x: auto;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.pagination p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 600;
 }
 
 .data-table {
@@ -476,7 +500,7 @@ img {
   .site-main,
   .site-header__inner,
   .site-footer__inner {
-    width: min(100% - 1rem, 1180px);
+    width: calc(100% - 1rem);
   }
 
   .hero-card__content,

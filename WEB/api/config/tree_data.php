@@ -66,27 +66,24 @@ function mapTreeRow(array $row): array
 
 function fetchAllTrees(PDO $pdo): array
 {
-    $statement = $pdo->query(
-        'SELECT
-            a.id_arbre,
-            a.hauteur_total,
-            a.hauteur_tronc,
-            a.diametre_tronc,
-            a.stade_developpement,
-            a.type_port,
-            a.type_pied,
-            a.remarquable,
-            a.longitude,
-            a.latitude,
-            e.id AS espece_id,
-            e.libelle AS nomfrancais,
-            et.id AS etat_id,
-            et.libelle AS etat
-        FROM arbre a
-        INNER JOIN espece e ON e.id = a.espece_id
-        INNER JOIN etat et ON et.id = a.etat_id
-        ORDER BY a.id_arbre'
-    );
+    $statement = $pdo->query(buildTreeSelectQuery() . ' ORDER BY a.id_arbre');
+
+    return array_map('mapTreeRow', $statement->fetchAll());
+}
+
+function countTrees(PDO $pdo): int
+{
+    $statement = $pdo->query('SELECT COUNT(*) FROM arbre');
+    return (int) $statement->fetchColumn();
+}
+
+function fetchTreesPage(PDO $pdo, int $page, int $limit): array
+{
+    $offset = max(0, ($page - 1) * $limit);
+    $statement = $pdo->prepare(buildTreeSelectQuery() . ' ORDER BY a.id_arbre LIMIT :limit OFFSET :offset');
+    $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $statement->execute();
 
     return array_map('mapTreeRow', $statement->fetchAll());
 }
@@ -94,28 +91,32 @@ function fetchAllTrees(PDO $pdo): array
 function fetchTreeById(PDO $pdo, string $treeId): ?array
 {
     $statement = $pdo->prepare(
-        'SELECT
-            a.id_arbre,
-            a.hauteur_total,
-            a.hauteur_tronc,
-            a.diametre_tronc,
-            a.stade_developpement,
-            a.type_port,
-            a.type_pied,
-            a.remarquable,
-            a.longitude,
-            a.latitude,
-            e.id AS espece_id,
-            e.libelle AS nomfrancais,
-            et.id AS etat_id,
-            et.libelle AS etat
-        FROM arbre a
-        INNER JOIN espece e ON e.id = a.espece_id
-        INNER JOIN etat et ON et.id = a.etat_id
-        WHERE a.id_arbre = :id_arbre'
+        buildTreeSelectQuery() . ' WHERE a.id_arbre = :id_arbre'
     );
     $statement->execute(['id_arbre' => $treeId]);
     $row = $statement->fetch();
 
     return $row ? mapTreeRow($row) : null;
+}
+
+function buildTreeSelectQuery(): string
+{
+    return 'SELECT
+        a.id_arbre,
+        a.hauteur_total,
+        a.hauteur_tronc,
+        a.diametre_tronc,
+        a.stade_developpement,
+        a.type_port,
+        a.type_pied,
+        a.remarquable,
+        a.longitude,
+        a.latitude,
+        e.id AS espece_id,
+        e.libelle AS nomfrancais,
+        et.id AS etat_id,
+        et.libelle AS etat
+    FROM arbre a
+    INNER JOIN espece e ON e.id = a.espece_id
+    INNER JOIN etat et ON et.id = a.etat_id';
 }

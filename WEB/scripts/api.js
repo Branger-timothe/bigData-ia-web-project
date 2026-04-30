@@ -39,6 +39,10 @@ export async function fetchTrees() {
   return data.trees || [];
 }
 
+export async function fetchTreePage(page = 1, limit = 10) {
+  return request(`/trees/list.php?page=${encodeURIComponent(page)}&limit=${encodeURIComponent(limit)}`);
+}
+
 export async function createTree(payload) {
   return request("/trees/create.php", {
     method: "POST",

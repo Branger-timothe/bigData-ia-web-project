@@ -1,13 +1,17 @@
-import { fetchTrees, formatAge, formatCluster, hideAlert, showAlert } from "./api.js";
+import { fetchTreePage, fetchTrees, formatAge, formatCluster, hideAlert, showAlert } from "./api.js";
 
 const tableBody = document.querySelector("#visualisation-table tbody");
 const countLabel = document.getElementById("visualisation-count");
 const alertBox = document.getElementById("visualisation-alert");
 const mapElement = document.getElementById("visualisation-map");
 const focusLabel = document.getElementById("visualisation-focus");
+const prevPageButton = document.getElementById("visualisation-prev-page");
+const nextPageButton = document.getElementById("visualisation-next-page");
+const pageInfoLabel = document.getElementById("visualisation-page-info");
 const SAINT_QUENTIN = { lat: 49.8489, lon: 3.2870 };
 const DEFAULT_ZOOM = 6.2;
 const FOCUS_ZOOM = 14;
+const PAGE_SIZE = 10;
 const FRANCE_BOUNDS = {
   minLat: 41.0,
   maxLat: 51.5,
@@ -17,6 +21,9 @@ const FRANCE_BOUNDS = {
 
 let currentMapTrees = [];
 let focusedTreeId = null;
+let currentPage = 1;
+let totalPages = 1;
+let totalTreeCount = 0;
 
 function isFranceCoordinate(tree) {
   const latitude = Number(tree.latitude);
@@ -242,6 +249,7 @@ function renderTable(trees) {
 
   trees.forEach((tree) => {
     const row = document.createElement("tr");
+    appendFocusCell(row, tree);
     appendCell(row, tree.id_arbre);
     appendCell(row, tree.nomfrancais);
     appendCell(row, String(tree.diametre_tronc));
@@ -256,22 +264,58 @@ function renderTable(trees) {
     appendCell(row, tree.remarquable ? "Oui" : "Non");
     appendCell(row, formatAge(tree.age));
     appendCell(row, formatCluster(tree.cluster));
-    appendFocusCell(row, tree);
     tableBody.appendChild(row);
   });
+}
+
+function updatePagination() {
+  if (pageInfoLabel) {
+    pageInfoLabel.textContent = `Page ${currentPage} sur ${totalPages} (${totalTreeCount} arbre(s))`;
+  }
+
+  if (prevPageButton) {
+    prevPageButton.disabled = currentPage <= 1;
+  }
+
+  if (nextPageButton) {
+    nextPageButton.disabled = currentPage >= totalPages;
+  }
+}
+
+async function loadTablePage(page) {
+  const data = await fetchTreePage(page, PAGE_SIZE);
+  currentPage = data.page || 1;
+  totalPages = data.total_pages || 1;
+  totalTreeCount = data.total_count || 0;
+  renderTable(data.trees || []);
+  updatePagination();
 }
 
 async function init() {
   try {
     hideAlert(alertBox);
-    const trees = await fetchTrees();
+    const [trees] = await Promise.all([
+      fetchTrees(),
+      loadTablePage(1),
+    ]);
     countLabel.textContent = `${trees.length} arbre(s) charges`;
-    renderTable(trees);
     renderMap(trees);
   } catch (error) {
     showAlert(alertBox, error instanceof Error ? error.message : "Impossible de charger les arbres.");
     countLabel.textContent = "Erreur de chargement";
   }
 }
+
+prevPageButton?.addEventListener("click", () => {
+  if (currentPage > 1) {
+    void loadTablePage(currentPage - 1);
+  }
+});
+
+nextPageButton?.addEventListener("click", () => {
+  if (currentPage < totalPages) {
+    void loadTablePage(currentPage + 1);
+  }
+});
 
 void init();

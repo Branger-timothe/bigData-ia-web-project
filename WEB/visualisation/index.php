@@ -40,6 +40,7 @@ renderPageStart('Visualisation', 'visualisation');
         <table class="data-table" id="visualisation-table">
             <thead>
                 <tr>
+                    <th>Focus carte</th>
                     <th>ID</th>
                     <th>Espece</th>
                     <th>Diametre</th>
@@ -54,11 +55,15 @@ renderPageStart('Visualisation', 'visualisation');
                     <th>Remarquable</th>
                     <th>Age</th>
                     <th>Cluster</th>
-                    <th>Focus carte</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
+    </div>
+    <div class="pagination" aria-label="Pagination du tableau">
+        <button type="button" class="button button--ghost" id="visualisation-prev-page">Page precedente</button>
+        <p id="visualisation-page-info">Page 1 sur 1</p>
+        <button type="button" class="button button--ghost" id="visualisation-next-page">Page suivante</button>
     </div>
 </section>
 
