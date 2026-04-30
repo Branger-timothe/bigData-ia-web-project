@@ -54,7 +54,7 @@ async function handleSubmit(event) {
   const total = Number(formData.get("hauteur_total"));
   const tronc = Number(formData.get("hauteur_tronc"));
 
-  // 🔥 VALIDATION ICI
+  // VALIDATION ICI
   if (tronc > total) {
     showAlert(alertBox, "Erreur : la hauteur du tronc ne peut pas être supérieure à la hauteur totale.", "error");
     return;
